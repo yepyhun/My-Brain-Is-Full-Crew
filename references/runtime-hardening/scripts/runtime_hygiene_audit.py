@@ -136,7 +136,8 @@ def build_report(target_date: date, grace_days: int = 7, root: Path | None = Non
     today_focus_confidence = frontmatter_value(today_focus_path, CONFIDENCE_RE)
     weekly_focus_confidence = frontmatter_value(weekly_focus_path, CONFIDENCE_RE)
     stale_events = stale_temporal_events(target_date, grace_days, real_root)
-    today_deliverable = canonical_deliverable_runtime.build_payload("today", target_date, root=real_root)
+    today_tasks_deliverable = canonical_deliverable_runtime.build_payload("today", target_date, root=real_root)
+    today_focus_deliverable = canonical_deliverable_runtime.build_payload("today-focus", target_date, root=real_root)
     weekly_deliverable = canonical_deliverable_runtime.build_payload("weekly", target_date, root=real_root)
 
     missing_or_stale_surfaces = []
@@ -150,8 +151,10 @@ def build_report(target_date: date, grace_days: int = 7, root: Path | None = Non
         missing_or_stale_surfaces.append("Weekly-Focus.md date mismatch")
 
     deliverable_issues = []
-    if today_deliverable["status"] == "drift":
-        deliverable_issues.append(f"Today-Focus deliverable issue: {today_deliverable['reason'] or 'drift'}")
+    if today_tasks_deliverable["status"] == "drift":
+        deliverable_issues.append(f"Today-Tasks deliverable issue: {today_tasks_deliverable['reason'] or 'drift'}")
+    if today_focus_deliverable["status"] == "drift":
+        deliverable_issues.append(f"Today-Focus deliverable issue: {today_focus_deliverable['reason'] or 'drift'}")
     if weekly_deliverable["status"] == "drift":
         deliverable_issues.append(f"Weekly-Focus deliverable issue: {weekly_deliverable['reason'] or 'drift'}")
 

@@ -5,6 +5,7 @@ This folder contains a sanitized reference pack of vault runtime hardening compo
 What is included:
 
 - deterministic guard and audit scripts for daily continuity, temporal reminders, source retention, and backlog hygiene
+- a split deliverable pattern where grounded `today` tasks and shorter `today-focus` synthesis stay separate
 - a post-turn orchestration example that stitches those runtimes together
 - focused regression tests using generic fixtures
 

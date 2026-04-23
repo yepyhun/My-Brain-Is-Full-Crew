@@ -8,6 +8,11 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
+try:
+    import today_tasks_runtime
+except ModuleNotFoundError:  # pragma: no cover - package import fallback for tests
+    from scripts import today_tasks_runtime
+
 ROOT = Path(__file__).resolve().parent.parent
 HEADER_RE = re.compile(r"^(?P<hashes>#{1,6})\s+(?P<title>.+?)\s*$")
 DATE_FIELD_RE = re.compile(r'(?m)^\s*date:\s*"(?P<value>\d{4}-\d{2}-\d{2})"\s*$')
@@ -15,7 +20,7 @@ STATUS_FIELD_RE = re.compile(r'(?m)^\s*status:\s*"(?P<value>[^"]+)"\s*$')
 CONFIDENCE_FIELD_RE = re.compile(r'(?m)^\s*focus-confidence:\s*"(?P<value>[^"]+)"\s*$')
 
 SURFACE_PATHS = {
-    "today": Path("Meta/Operational/Today-Focus.md"),
+    "today-focus": Path("Meta/Operational/Today-Focus.md"),
     "weekly": Path("Meta/Operational/Weekly-Focus.md"),
     "measurements": Path("Meta/Operational/Measurements-Radar.md"),
     "future-reminders": Path("Meta/Operational/Temporal-Radar.md"),
@@ -90,7 +95,25 @@ def compact_join(items: list[str]) -> str:
     return f"{', '.join(cleaned[:-1])}, es {cleaned[-1]}"
 
 
-def build_today_like_payload(kind: str, target_date: date, root: Path | None = None) -> dict[str, Any]:
+def build_today_tasks_payload(target_date: date, root: Path | None = None) -> dict[str, Any]:
+    real_root = root_for(root)
+    payload = today_tasks_runtime.build_payload(target_date, root=real_root)
+    status = payload["status"]
+    reason = ""
+    if not payload["deliverable"]:
+        status = "drift"
+        reason = "deliverable_missing"
+    return {
+        "kind": "today",
+        "date": target_date.isoformat(),
+        "status": status,
+        "deliverable": payload["deliverable"] if status != "drift" else "",
+        "reason": reason,
+        "surface_path": payload["daily_path"],
+    }
+
+
+def build_focus_payload(kind: str, target_date: date, root: Path | None = None) -> dict[str, Any]:
     real_root = root_for(root)
     surface_path = real_root / SURFACE_PATHS[kind]
     surface_date = frontmatter_value(surface_path, DATE_FIELD_RE)
@@ -204,11 +227,15 @@ def build_future_reminders_payload(target_date: date, root: Path | None = None) 
 
 
 def build_payload(kind: str, target_date: date, root: Path | None = None) -> dict[str, Any]:
+    if kind == "today":
+        return build_today_tasks_payload(target_date, root=root)
+    if kind == "today-focus":
+        return build_focus_payload(kind, target_date, root=root)
     if kind == "measurements":
         return build_measurements_payload(target_date, root=root)
     if kind == "future-reminders":
         return build_future_reminders_payload(target_date, root=root)
-    return build_today_like_payload(kind, target_date, root=root)
+    return build_focus_payload(kind, target_date, root=root)
 
 
 def render_text(payload: dict[str, Any]) -> str:
@@ -232,7 +259,7 @@ def parse_args() -> argparse.Namespace:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     serve = subparsers.add_parser("serve", help="Read the canonical user-facing deliverable for a runtime surface.")
-    serve.add_argument("--kind", choices=("today", "weekly", "measurements", "future-reminders"), required=True)
+    serve.add_argument("--kind", choices=("today", "today-focus", "weekly", "measurements", "future-reminders"), required=True)
     serve.add_argument("--date", required=True)
     serve.add_argument("--format", choices=("deliverable", "text", "json"), default="deliverable")
     serve.add_argument("--root", type=Path)
