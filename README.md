@@ -1,26 +1,58 @@
-# My Brain Is Full — Sanitized Runtime Pack
+# My Brain Is Full — Crew
 
-Ez a repo most egy letisztított, publikus export.
+This repository is a conversational second-brain system built around an Obsidian vault and a small crew of specialized AI workers.
 
-Nem egy teljes privát vault vagy teljes upstream tükör, hanem a szanitizált, újrahasznosítható runtime-hardening réteg:
+Instead of managing notes, folders, reminders, and maintenance by hand, you interact through chat. The dispatcher interprets what you want, routes the request to the right skill or agent, and writes the result back into the vault structure.
 
-- `references/runtime-hardening/scripts/` — determinisztikus guardok, auditok és orchestrator példák
-- `references/runtime-hardening/tests/` — a csomag regressziós tesztjei
-- `references/runtime-hardening/README.md` — rövid használati és scope leírás
+This fork keeps the original project surface intact and adds a cleaned reference pack for runtime hardening under `references/runtime-hardening/`.
 
-Mi nincs benne:
+## What This Project Does
 
-- személyes note-ok, daily-k, operational state fájlok
-- kontaktok, email helper-ek, lokális launch/config zaj
-- egyedi, privát tartalomra kötött workflow-darabok
+The system is designed for people whose life admin, ideas, deadlines, and notes do not stay neatly sorted on their own.
 
-Gyors ellenőrzés:
+It helps with things like:
 
-```bash
-python3 -m unittest discover -s references/runtime-hardening/tests -v
-```
+- capturing messy thoughts into usable notes
+- searching and synthesizing vault content
+- keeping inbox notes from piling up
+- turning dated commitments into surfaced reminders
+- maintaining operational views like current state, open loops, and daily focus
+- connecting email, calendar, and vault workflows when those integrations are available
 
-Megjegyzés:
+## Main Structure
 
-- a csomag vault-szerű struktúrát feltételez, például `07-Daily/`, `Meta/Operational/`, `Meta/Temporal/Events/`
-- referenciaanyagként van publikálva, nem kész termékként
+The project has two main execution layers:
+
+- **Agents** for bounded jobs such as capture, search, linking, maintenance, and communication
+- **Skills** for guided multi-step flows such as onboarding, inbox triage, weekly agenda generation, and audits
+
+The dispatcher checks skills first, then falls back to agents for simpler reactive tasks.
+
+## What This Fork Adds
+
+This fork includes a sanitized runtime-hardening reference pack:
+
+- `references/runtime-hardening/scripts/`
+- `references/runtime-hardening/tests/`
+- `references/runtime-hardening/README.md`
+
+That pack contains reusable guard, audit, orchestration, and regression-test patterns extracted from a private vault hardening pass, with personal details removed.
+
+## Getting Oriented
+
+If you want the core project, start here:
+
+- `docs/getting-started.md`
+- `docs/codex-cli.md`
+- `docs/codex-migration.md`
+- `references/agents-registry.md`
+
+If you specifically want the sanitized hardening material, go straight to:
+
+- `references/runtime-hardening/README.md`
+
+## Notes
+
+- This repository contains project code and reference materials, not a personal vault export.
+- The added runtime-hardening pack is reference material, not a standalone productized distribution.
+- If you use this on real personal data, privacy and operational safety are your responsibility.
