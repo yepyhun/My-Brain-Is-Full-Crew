@@ -1,6 +1,0 @@
-name: notify
-description: Send a desktop notification when your agent platform needs attention
-script: notify.sh
-triggers:
-  - event: on-notification
-exclude: []
